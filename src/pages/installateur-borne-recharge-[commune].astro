@@ -1,0 +1,346 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import SchemaMarkup from '../components/SchemaMarkup.astro';
+import CityMap from '../components/CityMap.astro';
+import communes from '../data/communes.json';
+import config from '../data/config.json';
+import { getSmartNearbyCommunes } from '../lib/geoLinks';
+import { generateCommuneContent, getDynamicPrices, getClimateZone, getVariantIndex } from '../lib/contentEngine';
+
+export async function getStaticPaths() {
+  return communes.map((commune) => {
+    return {
+      params: { commune: commune.slug },
+      props: { commune },
+    };
+  });
+}
+
+const { commune } = Astro.props;
+
+const title = `Installateur Borne de Recharge à ${commune.nom} (${commune.codePostal}) — Électricien IRVE Gironde`;
+const description = `Besoin d'installer une borne de recharge ou wallbox à ${commune.nom} ? Devis gratuit sous 48h par nos installateurs certifiés IRVE. Simulateur aides 2026.`;
+
+// Spintax Intro variants from spec
+const introVariants = [
+  "Bordeaux Métropole entre en ZFE en 2025 : installer une wallbox chez soi n'a jamais été aussi urgent",
+  "La Gironde compte 350 000 maisons individuelles avec garage — un potentiel massif pour la recharge VE",
+  "Un aller-retour Bordeaux–Arcachon en électrique consomme 12 kWh : votre wallbox le recharge en 2 heures",
+  "Les échoppes bordelaises avec garage en fond de jardin sont idéales pour l'installation d'une wallbox discrète",
+  "La prime ADVENIR rembourse 50% de votre borne en copropriété bordelaise — dossier monté gratuitement",
+  "Saint-Émilion, Libourne et le Médoc : les propriétaires de domaines viticoles s'équipent en bornes pour l'accueil œnotouristique",
+  "Pessac, Talence et le campus bordelais : les résidences étudiantes neuves pré-équipent en IRVE",
+  "En Gironde, le soleil et un kit solaire 3kW + wallbox = recharge 100% gratuite 8 mois sur 12"
+];
+
+const variantIdx = getVariantIndex(commune.slug, 0, introVariants.length);
+const selectedVariant = introVariants[variantIdx];
+
+const prices = getDynamicPrices(commune);
+const isZFE = getClimateZone(commune.codePostal, commune.slug) === 'bordeaux-metropole';
+
+// Spun intro paragraph as per spec
+const mainIntroText = `Vous recherchez un installateur de borne de recharge à ${commune.nom} en Gironde ? ${selectedVariant}. Les électriciens certifiés IRVE du 33 installent votre wallbox entre ${prices.wallbox7kW.min}€ et ${prices.wallbox7kW.max}€ TTC, aide ADVENIR déduite.`;
+
+// Local content blocks from contentEngine
+const content = generateCommuneContent(commune, 'main');
+
+// Proximity communes
+const nearby = getSmartNearbyCommunes(commune.slug, communes, 5, 2);
+
+const breadcrumbItems = [
+  { label: "Accueil", href: "/" },
+  { label: "Villes (33)", href: "/communes/" },
+  { label: `Installateur ${commune.nom}` }
+];
+
+function getLocalAgencyInfo(codePostal: string, slug: string) {
+  const zone = getClimateZone(codePostal, slug);
+  if (zone === 'bordeaux-metropole') {
+    return {
+      name: "l'ALEC de la Métropole de Bordeaux",
+      website: "alec-mb33.fr"
+    };
+  }
+  return {
+    name: "l'Espace Conseil France Rénov' de Gironde",
+    website: "creaq.org"
+  };
+}
+---
+
+<Layout title={title} description={description}>
+  <SchemaMarkup
+    slot="head"
+    pageUrl={Astro.url.href}
+    pageTitle={title}
+    pageDescription={description}
+    faqItems={content.faqItems}
+    breadcrumbItems={breadcrumbItems}
+    communeName={commune.nom}
+  />
+
+  <!-- Hero component with lead form -->
+  <Hero communeName={commune.nom} />
+
+  <Breadcrumb items={breadcrumbItems} />
+
+  <!-- Main Grid Layout -->
+  <section class="static-page-section" style="background-color: var(--bg); padding: 50px 0 80px;">
+    <div class="container two-column-layout">
+      <!-- Main Content Column -->
+      <div class="static-main-content" style="background: var(--card-bg); padding: 40px; border-radius: var(--radius-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+        
+        <!-- ZFE Badge Alert -->
+        <div style={`margin-bottom: 30px; padding: 20px; border-radius: var(--radius-sm); border: 1px solid ${isZFE ? '#b45309' : '#059669'}; background-color: ${isZFE ? '#fffbeb' : '#ecfdf5'}; display: flex; align-items: center; gap: 15px;`}>
+          <div style="font-size: 28px;">{isZFE ? '⚠️' : '✅'}</div>
+          <div>
+            <h4 style={`font-size: 15px; margin: 0; color: ${isZFE ? '#9a3412' : '#065f46'}; font-weight: bold;`}>
+              {isZFE ? "Zone à Faibles Émissions (ZFE) active" : "Commune hors zone ZFE stricte"}
+            </h4>
+            <p style={`font-size: 13.5px; margin: 4px 0 0; color: ${isZFE ? '#7c2d12' : '#047857'};`}>
+              {isZFE 
+                ? `${commune.nom} fait partie de Bordeaux Métropole. Les restrictions Crit'Air s'y appliquent de manière progressive. L'installation d'une wallbox à domicile est fortement conseillée.`
+                : `${commune.nom} est située hors périmètre ZFE direct, mais vos trajets vers l'agglomération bordelaise sont concernés. Anticipez pour rouler propre.`
+              }
+            </p>
+          </div>
+        </div>
+
+        <!-- Pattern Intro & Local Spun Paragraph -->
+        <p class="lead" style="font-size: 17px; font-weight: 700; color: var(--primary); line-height: 1.6; margin-bottom: 25px;">
+          {mainIntroText}
+        </p>
+
+        <p style="margin-bottom: 25px;">
+          {content.introParagraph}
+        </p>
+
+        <!-- Section: L'habitat et le diagnostic local -->
+        <h2>🏡 Éléments d'installation à {commune.nom}</h2>
+        <p>{content.localContext}</p>
+        <p>{content.communeDataInsight}</p>
+
+        <!-- Simulateur d'Aides 2026 -->
+        <div class="simulateur-aides" style="background-color: var(--primary-light); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 30px; margin: 35px 0;">
+          <h3 style="margin-top: 0; color: var(--primary); font-size: 20px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+            <span>💰</span> Estimer vos Aides à {commune.nom} (2026)
+          </h3>
+          <p style="font-size: 14.5px; margin-bottom: 20px; color: var(--text);">
+            En confiant l'installation à nos artisans RGE qualifiés IRVE intervenant sur le territoire de <strong>{commune.intercommunalite || 'votre intercommunalité'}</strong>, vous bénéficiez de subventions cumulables :
+          </p>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="background: white; padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <h4 style="font-size: 15px; color: var(--accent); margin-bottom: 8px;">En Maison Individuelle</h4>
+              <ul style="padding-left: 15px; font-size: 13px; color: var(--text-muted); display: flex; flex-direction: column; gap: 6px;">
+                <li><strong>Crédit d'impôt :</strong> 500 € par borne installée.</li>
+                <li><strong>TVA réduite :</strong> 5,5% sur le matériel et la pose.</li>
+                <li><strong>Économies estimées :</strong> {content.savingsEstimate}</li>
+                <li><strong>Reste à charge estimé :</strong> entre {prices.wallbox7kW.min - 500} € et {prices.wallbox7kW.max - 500} € TTC (après crédit d'impôt).</li>
+              </ul>
+            </div>
+            <div style="background: white; padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <h4 style="font-size: 15px; color: var(--accent); margin-bottom: 8px;">En Copropriété / Résidence</h4>
+              <ul style="padding-left: 15px; font-size: 13px; color: var(--text-muted); display: flex; flex-direction: column; gap: 6px;">
+                <li><strong>Aide ADVENIR :</strong> 50% du montant (jusqu'à 960 € TTC).</li>
+                <li><strong>Droit à la prise :</strong> Garanti par la loi (décret 2020).</li>
+                <li><strong>Crédit d'impôt :</strong> 500 € additionnels.</li>
+                <li><strong>Reste à charge moyen :</strong> entre {Math.round(prices.copro.min * 0.5 - 500)} € et {Math.round(prices.copro.max * 0.5 - 500)} € TTC.</li>
+              </ul>
+            </div>
+          </div>
+          <div style="margin-top: 20px; text-align: center;">
+            <a href="#devis" style="display: inline-block; background: var(--accent); color: white; padding: 10px 24px; border-radius: 50px; font-weight: 800; font-size: 14px; box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3);">
+              Calculer mes subventions &rarr;
+            </a>
+          </div>
+        </div>
+
+        <!-- Section: Conseil Technique & Anecdote -->
+        <h2>⚡ Conseil technique d'électricien IRVE</h2>
+        <div style="background: #fffbeb; border-left: 4px solid var(--accent); padding: 18px 24px; margin: 25px 0; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
+          <p style="font-style: italic; font-weight: 500; margin: 0; color: var(--text);">
+            "{content.expertTip}"
+          </p>
+        </div>
+
+        <p>{content.useCaseText}</p>
+        <p>{content.distanceLyonContext}</p>
+        
+        <!-- Section: Données locales uniques -->
+        <h2>📈 Marché immobilier & Valeur verte à {commune.nom}</h2>
+        <p>{content.marcheImmobilierInsight}</p>
+        <p>{content.realEstateInsight}</p>
+
+        <h2>🌍 Mobilité électrique sur votre territoire</h2>
+        <p>{content.densiteAnalysis}</p>
+        <p>{content.populationTierContent}</p>
+
+        <h2>🏰 Réglementation locale & Recharge</h2>
+        <p>{content.localRegulation}</p>
+
+        <!-- Comparateur de Bornes -->
+        <h2>📊 Comparatif des Puissances de Recharge à {commune.nom}</h2>
+        <p>{content.tableIntro}</p>
+        
+        <div class="table-scroll-wrapper" style="margin: 25px 0;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Type de Borne</th>
+                <th>Puissance</th>
+                <th>Temps de charge (60kWh)</th>
+                <th>Utilisation conseillée</th>
+                <th>Prix posé estimé</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Prise Green'Up</strong></td>
+                <td>3.7 kW (16A)</td>
+                <td>~15 heures</td>
+                <td>Hybrides rechargeables / petits trajets</td>
+                <td class="price">{prices.greenUp.min}€ – {prices.greenUp.max}€</td>
+              </tr>
+              <tr>
+                <td><strong>Wallbox Monophasée</strong></td>
+                <td>7.4 kW (32A)</td>
+                <td>~8 heures</td>
+                <td>Maisons individuelles (Standard)</td>
+                <td class="price">{prices.wallbox7kW.min}€ – {prices.wallbox7kW.max}€</td>
+              </tr>
+              <tr>
+                <td><strong>Wallbox Triphasée</strong></td>
+                <td>11 kW (3x16A)</td>
+                <td>~5 heures</td>
+                <td>Semi-rapide (Tesla, berlines)</td>
+                <td class="price">{prices.wallbox11kW.min}€ – {prices.wallbox11kW.max}€</td>
+              </tr>
+              <tr>
+                <td><strong>Borne Triphasée Rapide</strong></td>
+                <td>22 kW (3x32A)</td>
+                <td>~3 heures</td>
+                <td>Professionnels / charges express</td>
+                <td class="price">{prices.wallbox22kW.min}€ – {prices.wallbox22kW.max}€</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size: 12.5px; color: var(--text-muted); font-style: italic;">
+          * {content.sourcesCitation}. Les tarifs réels varient en fonction de la distance de raccordement entre votre tableau de répartition et l'emplacement de la borne.
+        </p>
+
+        <!-- Local Map -->
+        <h2>📍 Zone d'intervention des installateurs IRVE</h2>
+        <p>Nos techniciens partenaires interviennent à domicile dans toute la commune de <strong>{commune.nom} ({commune.codePostal})</strong> et ses alentours. Voir la carte ci-dessous :</p>
+        <CityMap cityName={commune.nom} zip={commune.codePostal} />
+
+        <!-- FAQ Accordion -->
+        <h2 style="margin-top: 40px;">❓ FAQ Borne de recharge - {commune.nom}</h2>
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
+          {content.faqItems.map(faq => (
+            <details class="faq-details">
+              <summary>
+                {faq.question}
+              </summary>
+              <div class="faq-answer">
+                <p>{faq.answer}</p>
+              </div>
+            </details>
+          ))}
+        </div>
+
+        <!-- Cross-Template Internal Links (même commune) -->
+        <div style="margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--border-color);">
+          <h4 style="font-size: 15px; color: var(--primary); margin-bottom: 15px; font-weight: bold;">📌 Toutes nos prestations à {commune.nom} :</h4>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px;">
+            <a href={`/installateur-borne-recharge-${commune.slug}/`} style="font-size: 13px; background: var(--primary); color: white; padding: 8px 14px; border-radius: 4px; font-weight: bold;" aria-current="page">
+              🔌 Installateur IRVE {commune.nom}
+            </a>
+            <a href={`/borne-recharge-copropriete-${commune.slug}/`} style="font-size: 13px; background: var(--bg); border: 1px solid var(--border-color); padding: 8px 14px; border-radius: 4px; color: var(--primary); font-weight: bold;">
+              🏢 Copropriété {commune.nom}
+            </a>
+            <a href={`/wallbox-${commune.slug}/`} style="font-size: 13px; background: var(--bg); border: 1px solid var(--border-color); padding: 8px 14px; border-radius: 4px; color: var(--primary); font-weight: bold;">
+              ⚡ Wallbox {commune.nom}
+            </a>
+          </div>
+
+          <h4 style="font-size: 15px; color: var(--primary); margin-bottom: 12px; font-weight: bold;">🗺️ Installateurs IRVE dans les communes proches :</h4>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;">
+            {nearby.map(c => (
+              <a href={`/installateur-borne-recharge-${c.slug}/`} style="font-size: 12.5px; background: var(--bg); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 4px; color: var(--primary); font-weight: bold;">
+                {c.nom} ({c.codePostal})
+              </a>
+            ))}
+          </div>
+
+          <details style="margin-top: 10px;">
+            <summary style="cursor: pointer; font-size: 13px; font-weight: 700; color: var(--accent);">
+              Voir aussi : Copropriété & Wallbox dans les villes proches →
+            </summary>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">
+              {nearby.map(c => (
+                <a href={`/borne-recharge-copropriete-${c.slug}/`} style="font-size: 11.5px; background: #ecfdf5; border: 1px solid #d1fae5; padding: 4px 8px; border-radius: 3px; color: #065f46;">
+                  🏢 Copro {c.nom}
+                </a>
+              ))}
+              {nearby.map(c => (
+                <a href={`/wallbox-${c.slug}/`} style="font-size: 11.5px; background: #fffbeb; border: 1px solid #fef3c7; padding: 4px 8px; border-radius: 3px; color: #9a3412;">
+                  ⚡ Wallbox {c.nom}
+                </a>
+              ))}
+            </div>
+          </details>
+        </div>
+
+      </div>
+
+      <!-- Sidebar Column -->
+      <div class="static-sidebar">
+        <!-- CTA widget -->
+        <div class="sidebar-widget bg-purple-gradient">
+          <h3 style="font-family: var(--font-heading); font-size: 18px; margin-bottom: 12px;">📋 Votre devis gratuit</h3>
+          <p>
+            Obtenez jusqu'à 3 propositions gratuites de professionnels IRVE agréés intervenant à {commune.nom} sous 48 heures.
+          </p>
+          <a href="#devis" class="sidebar-cta-gold">
+            Comparer les devis &rarr;
+          </a>
+        </div>
+
+        <!-- Local Agency info widget -->
+        <div class="sidebar-widget">
+          <h3>🏢 Accompagnement local</h3>
+          <p>
+            Pour valider vos dossiers de subventions locales ou obtenir un avis technique neutre sur l'isolation ou la transition énergétique de votre logement à {commune.nom}, contactez :
+          </p>
+          <p style="font-weight: 700; color: var(--primary); font-size: 14px; margin-bottom: 5px;">
+            {content.localAgencyName}
+          </p>
+          <p style="font-size: 12.5px; line-height: 1.4; margin-bottom: 15px;">
+            Organisme public de conseil en éco-habitat et transition écologique en Gironde.
+          </p>
+          <a href={`https://www.${getLocalAgencyInfo(commune.codePostal, commune.slug).website}`} target="_blank" rel="noopener noreferrer" style="font-size: 13px; font-weight: 700; color: var(--accent); text-decoration: underline;">
+            Visiter leur site officiel &rarr;
+          </a>
+        </div>
+
+        <!-- Guides Showcase widget -->
+        <div class="sidebar-widget">
+          <h3>📚 Guides utiles</h3>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            {content.guideLinks.map(guide => (
+              <a href={guide.href} style="display: block; text-decoration: none; color: inherit;">
+                <h4 style="font-size: 14px; color: var(--primary); margin: 0 0 4px 0; font-weight: bold; text-decoration: underline;">{guide.label}</h4>
+                <p style="font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.4;">{guide.desc}</p>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

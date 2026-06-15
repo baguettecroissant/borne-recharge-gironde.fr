@@ -1,0 +1,100 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import config from '../../data/config.json';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import SchemaMarkup from '../../components/SchemaMarkup.astro';
+
+const title = `Guides, Conseils & Actualités Borne de Recharge | ${config.brandName}`;
+const description = `Découvrez tous nos dossiers et guides d'experts sur l'installation de borne de recharge, subventions ADVENIR, crédit d'impôt et solutions pour votre voiture électrique en Gironde (33).`;
+
+const breadcrumbItems = [
+  { label: "Accueil", href: "/" },
+  { label: "Guides" }
+];
+
+// Fetch all guide articles and sort by publish date desc (or simple alphabet if date matches)
+const guides = await getCollection('guides');
+const sortedGuides = guides.sort((a, b) => new Date(b.data.publishDate).getTime() - new Date(a.data.publishDate).getTime());
+---
+
+<Layout title={title} description={description}>
+  <SchemaMarkup
+    slot="head"
+    pageUrl={Astro.url.href}
+    pageTitle={title}
+    pageDescription={description}
+  />
+
+  <Breadcrumb items={breadcrumbItems} />
+
+  <!-- Blog Hero Header -->
+  <section style="background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%); color: white; padding: 70px 0; text-align: center;">
+    <div class="container" style="max-width: 900px; margin: 0 auto;">
+      <h1 style="color: white; font-family: var(--font-heading); font-size: 38px; margin-bottom: 15px;">
+        📚 Guides & Conseils d'Électriciens IRVE
+      </h1>
+      <p style="color: var(--primary-light); font-size: 16.5px; max-width: 700px; margin: 0 auto; line-height: 1.6;">
+        Toutes les clés pour comprendre l'installation, les tarifs, la réglementation ZFE Bordeaux Métropole, les aides ADVENIR et faire le meilleur choix de matériel pour votre voiture électrique en Gironde.
+      </p>
+    </div>
+  </section>
+
+  <!-- Guides Grid -->
+  <section style="padding: 60px 0; background-color: var(--bg);">
+    <div class="container">
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 30px;">
+        {sortedGuides.map(guide => (
+          <article style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; transition: var(--transition);">
+            <!-- Image placeholder generated/defined -->
+            <div style="width: 100%; aspect-ratio: 16/9; background: #450a0a; overflow: hidden; position: relative;">
+              <img 
+                src={guide.data.image || "/images/hero-borne-recharge-gironde.png"} 
+                alt={guide.data.title}
+                style="width: 100%; height: 100%; object-fit: cover; transition: var(--transition);"
+                loading="lazy"
+              />
+              <div style="position: absolute; top: 12px; left: 12px; background: var(--accent); color: white; font-size: 10.5px; font-weight: bold; padding: 4px 10px; border-radius: 50px; text-transform: uppercase;">
+                {guide.data.tags?.[0] || "Guide"}
+              </div>
+            </div>
+
+            <!-- Content area -->
+            <div style="padding: 25px; display: flex; flex-direction: column; flex-grow: 1; gap: 10px;">
+              <span style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);">
+                Publié le {new Date(guide.data.publishDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </span>
+              
+              <h2 style="font-size: 19px; color: var(--primary); margin: 0; line-height: 1.35; font-family: var(--font-heading); font-weight: bold;">
+                <a href={`/guides/${guide.id}/`} style="color: inherit; text-decoration: none;">
+                  {guide.data.title}
+                </a>
+              </h2>
+              
+              <p style="font-size: 14px; color: var(--text-muted); line-height: 1.55; margin: 0; flex-grow: 1;">
+                {guide.data.description}
+              </p>
+
+              <div style="margin-top: 15px; border-top: 1px solid var(--primary-light); padding-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+                <a href={`/guides/${guide.id}/`} style="font-weight: 700; color: var(--accent); font-size: 13.5px; display: inline-flex; align-items: center; gap: 4px;">
+                  Lire l'article &rarr;
+                </a>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  article:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md) !important;
+    border-color: var(--accent) !important;
+  }
+  article:hover img {
+    transform: scale(1.03);
+  }
+</style>

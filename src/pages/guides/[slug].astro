@@ -1,0 +1,157 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import config from '../../data/config.json';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import SchemaMarkup from '../../components/SchemaMarkup.astro';
+
+export async function getStaticPaths() {
+  const guides = await getCollection('guides');
+  return guides.map((guide) => ({
+    params: { slug: guide.id },
+    props: { guide },
+  }));
+}
+
+const { guide } = Astro.props;
+const { Content } = await render(guide);
+
+const title = `${guide.data.title} | ${config.brandName}`;
+const description = guide.data.description;
+
+const breadcrumbItems = [
+  { label: "Accueil", href: "/" },
+  { label: "Guides", href: "/guides/" },
+  { label: guide.data.title }
+];
+
+// Get other articles for reading next list
+const allGuides = await getCollection('guides');
+const readNext = allGuides
+  .filter(g => g.id !== guide.id)
+  .slice(0, 3);
+---
+
+<Layout title={title} description={description}>
+  <SchemaMarkup
+    slot="head"
+    pageUrl={Astro.url.href}
+    pageTitle={title}
+    pageDescription={description}
+    breadcrumbItems={breadcrumbItems}
+  />
+
+  <Breadcrumb items={breadcrumbItems} />
+
+  <section class="static-page-section" style="background-color: var(--bg); padding: 50px 0 80px;">
+    <div class="container two-column-layout">
+      <!-- Main Article Content -->
+      <article class="static-main-content" style="background: var(--card-bg); padding: 40px; border-radius: var(--radius-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); overflow: hidden;">
+        <!-- Header Info -->
+        <div style="margin-bottom: 25px;">
+          <span style="font-size: 13px; color: var(--accent); font-family: var(--font-mono); font-weight: bold; text-transform: uppercase; display: inline-block; margin-bottom: 8px;">
+            {guide.data.tags?.join(' · ') || 'Guide'}
+          </span>
+          <h1 style="font-family: var(--font-heading); font-size: 32px; color: var(--primary); margin: 0 0 15px 0; line-height: 1.25; border-bottom: 3px solid var(--primary-light); padding-bottom: 20px;">
+            {guide.data.title}
+          </h1>
+          <div style="font-size: 13.5px; color: var(--text-muted); display: flex; align-items: center; gap: 15px;">
+            <span>📅 Publié le {new Date(guide.data.publishDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+            <span>✍️ Par l'équipe de rédaction {config.brandName}</span>
+          </div>
+        </div>
+
+        {guide.data.image && (
+          <div style="width: 100%; aspect-ratio: 16/9; border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 35px; border: 1px solid var(--border-color);">
+            <img 
+              src={guide.data.image} 
+              alt={guide.data.title} 
+              style="width: 100%; height: 100%; object-fit: cover;"
+            />
+          </div>
+        )}
+
+        <!-- Rendered Markdown Content -->
+        <div class="markdown-body">
+          <Content />
+        </div>
+      </article>
+
+      <!-- Sidebar -->
+      <aside class="static-sidebar">
+        <!-- Devis Widget -->
+        <div class="sidebar-widget bg-purple-gradient">
+          <h3 style="font-family: var(--font-heading); font-size: 18px; margin-bottom: 12px;">📋 Projet Borne de recharge</h3>
+          <p>
+            Obtenez jusqu'à 3 devis comparatifs gratuits d'électriciens qualifiés IRVE de Gironde pour votre installation de borne.
+          </p>
+          <a href="/devis/" class="sidebar-cta-gold">
+            Demander mon devis gratuit &rarr;
+          </a>
+        </div>
+
+        <!-- Read Next Widget -->
+        <div class="sidebar-widget">
+          <h3>📚 À lire ensuite</h3>
+          <div style="display: flex; flex-direction: column; gap: 15px;">
+            {readNext.map(g => (
+              <a href={`/guides/${g.id}/`} style="display: block; text-decoration: none; color: inherit; padding-bottom: 12px; border-bottom: 1px solid var(--primary-light);">
+                <h4 style="font-size: 13.5px; color: var(--primary); margin: 0 0 4px 0; font-weight: bold; text-decoration: underline;">{g.data.title}</h4>
+                <p style="font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.45;">{g.data.description.slice(0, 95)}...</p>
+              </a>
+            ))}
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+</Layout>
+
+<style is:global>
+  /* Markdown specific styles inside the rendered container */
+  .markdown-body h2 {
+    font-size: 22px;
+    margin: 35px 0 15px;
+    color: var(--primary);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+  }
+  .markdown-body h3 {
+    font-size: 17px;
+    margin: 25px 0 10px;
+    color: var(--primary);
+  }
+  .markdown-body p {
+    font-size: 15.5px;
+    line-height: 1.65;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+  .markdown-body ul, .markdown-body ol {
+    margin-bottom: 20px;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .markdown-body li {
+    font-size: 15px;
+    color: var(--text);
+  }
+  .markdown-body table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 14px;
+  }
+  .markdown-body th, .markdown-body td {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+  }
+  .markdown-body th {
+    background-color: var(--primary-light);
+    color: var(--primary);
+    font-weight: 700;
+  }
+</style>

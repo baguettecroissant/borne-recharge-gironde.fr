@@ -1,0 +1,84 @@
+---
+import Layout from '../layouts/Layout.astro';
+import config from '../data/config.json';
+import Breadcrumb from '../components/Breadcrumb.astro';
+
+const title = `Politique de Confidentialité | ${config.brandName}`;
+const description = `Découvrez comment nous protégeons et traitons vos données personnelles sur ${config.domain}.`;
+
+const breadcrumbItems = [
+  { label: "Accueil", href: "/" },
+  { label: "Politique de Confidentialité" }
+];
+---
+
+<Layout title={title} description={description} robots="noindex, follow">
+  <Breadcrumb items={breadcrumbItems} />
+
+  <section style="padding: 50px 0 80px; background-color: var(--bg);">
+    <div class="container" style="max-width: 800px; margin: 0 auto;">
+      <div style="background: var(--card-bg); padding: 40px; border-radius: var(--radius-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+        <h1 style="font-family: var(--font-heading); font-size: 32px; color: var(--primary); margin-bottom: 25px; border-bottom: 3px solid var(--primary-light); padding-bottom: 15px;">Politique de Confidentialité</h1>
+        
+        <p style="margin-bottom: 20px; font-style: italic;">Dernière mise à jour : 15 juin 2026</p>
+
+        <p style="margin-bottom: 20px;">
+          La présente Politique de confidentialité décrit la manière dont <strong>{config.brandName}</strong> collecte, utilise, protège et partage les données personnelles des utilisateurs qui remplissent le formulaire de demande de devis sur notre site <strong>{config.domain}</strong>.
+        </p>
+
+        <h2>1. Données Collectées</h2>
+        <p style="margin-bottom: 20px;">
+          Lorsque vous utilisez notre formulaire de mise en relation, nous collectons les informations suivantes :
+        </p>
+        <ul style="margin-left: 20px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px;">
+          <li><strong>Informations de contact :</strong> Nom, prénom, numéro de téléphone, adresse e-mail.</li>
+          <li><strong>Détails du projet :</strong> Code postal, commune de résidence, type d'habitation (maison ou copropriété), type de borne souhaité, puissance désirée, caractéristiques de l'installation électrique actuelle.</li>
+        </ul>
+
+        <h2>2. Finalité du Traitement</h2>
+        <p style="margin-bottom: 20px;">
+          Ces données personnelles sont collectées dans le but exclusif de :
+        </p>
+        <ul style="margin-left: 20px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px;">
+          <li>Qualifier votre projet d'installation de borne de recharge électrique (ou de prise renforcée).</li>
+          <li>Transmettre votre demande en temps réel à notre partenaire intermédiaire de devis (ViteUnDevis) et à des électriciens professionnels qualifiés IRVE locaux situés en Gironde (33).</li>
+          <li>Permettre à ces professionnels de vous recontacter pour réaliser une visite technique et vous présenter des offres adaptées et personnalisées.</li>
+        </ul>
+
+        <h2>3. Sécurité des Données</h2>
+        <p style="margin-bottom: 20px;">
+          Nous mettons en œuvre des mesures de sécurité physiques, techniques et organisationnelles rigoureuses pour protéger vos données contre tout accès, divulgation, modification ou destruction non autorisés. Vos données personnelles sont stockées dans une base de données sécurisée (Supabase) située au sein de l'Union Européenne et transmises de manière sécurisée via protocole HTTPS.
+        </p>
+
+        <h2>4. Partage des Données</h2>
+        <p style="margin-bottom: 20px;">
+          Vos données ne sont en aucun cas vendues, louées ou cédées à des tiers à des fins de prospection publicitaire. Les seuls destinataires de vos données sont la plateforme d'intermédiation de devis (ViteUnDevis) et les installateurs d'infrastructures de recharge certifiés IRVE en Gironde chargés de traiter votre demande de devis.
+        </p>
+
+        <h2>5. Durée de Conservation</h2>
+        <p style="margin-bottom: 20px;">
+          Les données personnelles collectées via notre site sont conservées pendant une durée maximale de 3 ans à compter du dernier contact avec l'utilisateur, après quoi elles sont anonymisées ou supprimées de nos bases de données.
+        </p>
+
+        <h2>6. Vos Droits (RGPD)</h2>
+        <p style="margin-bottom: 20px;">
+          Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez des droits suivants concernant vos données personnelles :
+        </p>
+        <ul style="margin-left: 20px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px;">
+          <li>Droit d'accès et d'information sur le traitement de vos données.</li>
+          <li>Droit de rectification de vos informations inexactes ou incomplètes.</li>
+          <li>Droit à l'effacement de vos données ("droit à l'oubli").</li>
+          <li>Droit de limitation ou d'opposition au traitement de vos données.</li>
+        </ul>
+        <p style="margin-bottom: 20px;">
+          Pour exercer ces droits, il vous suffit de nous contacter par e-mail à l'adresse suivante : <strong>contact@baguettecroissant.com</strong> en précisant l'objet de votre demande et le nom de domaine concerné.
+        </p>
+
+        <h2>7. Cookies et Mesure d'Audience</h2>
+        <p style="margin-bottom: 20px;">
+          Afin d'améliorer votre expérience de navigation et de mesurer l'audience de notre site de manière anonyme, nous pouvons utiliser des technologies de suivi de type cookies. Ces cookies ne collectent pas d'informations personnelles identifiables sans votre consentement. Vous pouvez configurer votre navigateur pour bloquer les cookies à tout moment.
+        </p>
+      </div>
+    </div>
+  </section>
+</Layout>

@@ -1,0 +1,140 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import SchemaMarkup from '../components/SchemaMarkup.astro';
+import config from '../data/config.json';
+
+const title = `Guide Technique Installation Borne de Recharge Gironde – Normes & Câblage`;
+const description = `Découvrez les exigences techniques pour installer votre borne de recharge en Gironde (33) : normes électriques NFC 15-100, câblage, puissance et Linky.`;
+
+const breadcrumbItems = [
+  { label: "Accueil", href: "/" },
+  { label: "Guide Technique" }
+];
+---
+
+<Layout title={title} description={description}>
+  <SchemaMarkup 
+    slot="head" 
+    pageUrl={Astro.url.href}
+    pageTitle={title}
+    pageDescription={description}
+    breadcrumbItems={breadcrumbItems}
+  />
+
+  <Breadcrumb items={breadcrumbItems} />
+
+  <section class="static-page-section" style="padding: 50px 0 80px; background-color: var(--bg);">
+    <div class="container">
+      <div class="two-column-layout">
+        
+        <!-- Main Content -->
+        <div class="static-main-content rich-text" style="background: var(--card-bg); padding: 40px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+          <h1 style="font-family: var(--font-heading); font-size: 32px; font-weight: 700; color: var(--primary); margin-bottom: 20px;">Guide Technique d'Installation de Borne de Recharge</h1>
+          
+          <p>
+            L'installation d'une borne de recharge pour véhicule électrique (wallbox) ou d'une prise renforcée à votre domicile en Gironde obéit à des règles de sécurité électrique nationales strictes. Ce guide technique complet détaille les normes électriques (NF C 15-100), le dimensionnement des câbles et les exigences indispensables pour garantir la sécurité de votre foyer.
+          </p>
+
+          <h2>1. La Norme Électrique NF C 15-100 &amp; la Recharge VE</h2>
+          <p>
+            En France, toute borne de recharge domestique doit être raccordée sur un circuit électrique dédié et protégé. Selon la norme NF C 15-100 et le décret IRVE, l'installation doit intégrer les protections suivantes :
+          </p>
+          <ul style="margin-left: 20px; margin-bottom: 25px; display: flex; flex-direction: column; gap: 8px;">
+            <li><strong>Interrupteur différentiel dédié :</strong> De type A-EV ou de type B (30 mA), capable de détecter les fuites de courant continu générées par la batterie du véhicule.</li>
+            <li><strong>Disjoncteur divisionnaire :</strong> Adapté à la puissance de la borne (généralement 40A pour une wallbox de 7.4 kW en monophasé).</li>
+            <li><strong>Obturateurs de sécurité (Prises T2S) :</strong> En France, les prises des bornes installées à domicile doivent être équipées d'obturateurs de sécurité enfants (type T2S) pour empêcher tout contact direct avec les broches sous tension.</li>
+          </ul>
+
+          <h2>2. Le Dimensionnement du Câble d'Alimentation</h2>
+          <p>
+            La section des conducteurs en cuivre dépend de la puissance de la borne et de la distance qui la sépare de votre tableau électrique principal afin d'éviter toute chute de tension et risque d'échauffement :
+          </p>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Puissance de la borne</th>
+                <th>Distance < 15 mètres</th>
+                <th>Distance 15 à 30 mètres</th>
+                <th>Type d'alimentation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>3.7 kW (16A)</strong></td>
+                <td>2.5 mm²</td>
+                <td>4 mm²</td>
+                <td>Monophasé 230V</td>
+              </tr>
+              <tr>
+                <td><strong>7.4 kW (32A)</strong></td>
+                <td>6 mm² (recommandé 10 mm²)</td>
+                <td>10 mm²</td>
+                <td>Monophasé 230V</td>
+              </tr>
+              <tr>
+                <td><strong>11 kW (3 x 16A)</strong></td>
+                <td>2.5 mm² (recommandé 4 mm²)</td>
+                <td>6 mm²</td>
+                <td>Triphasé 400V</td>
+              </tr>
+              <tr>
+                <td><strong>22 kW (3 x 32A)</strong></td>
+                <td>6 mm² (recommandé 10 mm²)</td>
+                <td>10 mm²</td>
+                <td>Triphasé 400V</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>3. Le smart charging &amp; le délestage dynamique Linky</h2>
+          <p>
+            Recharger sa voiture à 7.4 kW représente un appel de puissance conséquent (32 Ampères), équivalent à la consommation cumulée d'un four, d'un lave-linge et de plaques de cuisson. Pour éviter de faire sauter le disjoncteur général de votre maison, nos installateurs IRVE en Gironde installent un <strong>module de délestage dynamique</strong> (Smart Charging) :
+          </p>
+          <p>
+            Ce petit boîtier électronique communique en temps réel avec la sortie TIC (Télé-Information Client) de votre compteur Linky. Si la consommation de votre maison approche de la limite de votre abonnement (ex: 9 kVA), la borne réduit temporairement sa vitesse de charge. Elle reprend sa pleine puissance dès que les autres appareils s'éteignent (notamment pendant la nuit).
+          </p>
+
+          <h2>4. L'importance de la prise de terre</h2>
+          <p>
+            Les véhicules électriques (notamment la Renault Zoé ou les Tesla) disposent d'un contrôle de sécurité permanent de la prise de terre. Si la résistance de votre prise de terre dépasse <strong>100 Ohms</strong>, ou si la tension neutre-terre est trop élevée, le chargeur embarqué de votre voiture refusera de lancer la charge par sécurité. Nos techniciens qualifiés mesurent systématiquement cette valeur avec un telluromètre avant de poser votre borne et améliorent la prise de terre si nécessaire (ajout d'un piquet de terre).
+          </p>
+
+          <div style="background: var(--primary-light); border: 1.5px solid var(--border-color); padding: 25px; border-radius: var(--radius-md); margin-top: 40px;">
+            <h3 style="margin-top: 0; color: var(--primary); font-size: 17px; font-weight: 700; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; margin-bottom: 15px;">🔗 Articles connexes utiles</h3>
+            <ul style="list-style: none; padding-left: 0; display: flex; flex-direction: column; gap: 12px; font-size: 14px; margin-bottom: 0;">
+              <li>💰 <a href="/aides-advenir/" style="color: var(--secondary); font-weight: 700;">Subventions ADVENIR et crédit d'impôt 2026</a></li>
+              <li>🧮 <a href="/tarifs/" style="color: var(--secondary); font-weight: 700;">Barème de tarifs d'installation en Gironde</a></li>
+              <li>🚗 <a href="/zfe-bordeaux/" style="color: var(--secondary); font-weight: 700;">ZFE Bordeaux Métropole et calendrier Crit'Air</a></li>
+              <li>🏢 <a href="/guides/copropriete-bordeaux-infrastructure-irve/" style="color: var(--secondary); font-weight: 700;">Droit à la prise en copropriété à Bordeaux</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="static-sidebar">
+          <div class="sidebar-widget bg-purple-gradient">
+            <h3>🧮 Obtenez 3 Devis IRVE</h3>
+            <p>Notre réseau d'électriciens girondins qualifiés IRVE vous propose une étude technique gratuite de votre installation électrique.</p>
+            <a href="/devis/" class="sidebar-cta-gold">Demander mes devis gratuits →</a>
+          </div>
+
+          <div class="sidebar-widget">
+            <h3>🔋 Puissance &amp; Autonomie</h3>
+            <p style="font-size: 13px;">Recharger une batterie de 60 kWh sur une wallbox 7.4 kW prend environ 8 heures, offrant une autonomie complète pour vos trajets quotidiens.</p>
+            <a href="/tarifs/" style="color: var(--secondary); font-weight: 700; font-size: 13px;">Consulter notre grille tarifaire →</a>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  @media (max-width: 992px) {
+    .two-column-layout {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>

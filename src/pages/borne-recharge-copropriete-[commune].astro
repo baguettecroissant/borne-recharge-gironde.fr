@@ -1,0 +1,300 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import SchemaMarkup from '../components/SchemaMarkup.astro';
+import CityMap from '../components/CityMap.astro';
+import communes from '../data/communes.json';
+import config from '../data/config.json';
+import { getSmartNearbyCommunes } from '../lib/geoLinks';
+import { generateCommuneContent, getDynamicPrices, getClimateZone } from '../lib/contentEngine';
+
+export async function getStaticPaths() {
+  return communes.map((commune) => {
+    return {
+      params: { commune: commune.slug },
+      props: { commune },
+    };
+  });
+}
+
+const { commune } = Astro.props;
+
+const title = `Borne de Recharge en Copropriété à ${commune.nom} (${commune.codePostal}) — Droit à la Prise & Aides`;
+const description = `Vous habitez en appartement ou copropriété à ${commune.nom} ? Installez une borne de recharge de voiture électrique grâce au droit à la prise et aux aides ADVENIR 2026.`;
+
+const prices = getDynamicPrices(commune);
+const isZFE = getClimateZone(commune.codePostal, commune.slug) === 'bordeaux-metropole';
+
+// Spun content for copropriete category
+const content = generateCommuneContent(commune, 'copropriete');
+
+// Proximity communes
+const nearby = getSmartNearbyCommunes(commune.slug, communes, 5, 2);
+
+const breadcrumbItems = [
+  { label: "Accueil", href: "/" },
+  { label: "Villes (33)", href: "/communes/" },
+  { label: `Copropriété ${commune.nom}` }
+];
+
+function getLocalAgencyInfo(codePostal: string, slug: string) {
+  const zone = getClimateZone(codePostal, slug);
+  if (zone === 'bordeaux-metropole') {
+    return {
+      name: "l'ALEC de la Métropole de Bordeaux",
+      website: "alec-mb33.fr"
+    };
+  }
+  return {
+    name: "l'Espace Conseil France Rénov' de Gironde",
+    website: "creaq.org"
+  };
+}
+---
+
+<Layout title={title} description={description}>
+  <SchemaMarkup
+    slot="head"
+    pageUrl={Astro.url.href}
+    pageTitle={title}
+    pageDescription={description}
+    faqItems={content.faqItems}
+    breadcrumbItems={breadcrumbItems}
+    communeName={commune.nom}
+  />
+
+  <!-- Hero with copro parameters -->
+  <Hero communeName={commune.nom} categoryName="Copropriété" />
+
+  <Breadcrumb items={breadcrumbItems} />
+
+  <!-- Main Grid Layout -->
+  <section class="static-page-section" style="background-color: var(--bg); padding: 50px 0 80px;">
+    <div class="container two-column-layout">
+      <!-- Main Content Column -->
+      <div class="static-main-content" style="background: var(--card-bg); padding: 40px; border-radius: var(--radius-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+        
+        <!-- ZFE Badge Alert -->
+        <div style={`margin-bottom: 30px; padding: 20px; border-radius: var(--radius-sm); border: 1px solid ${isZFE ? '#b45309' : '#059669'}; background-color: ${isZFE ? '#fffbeb' : '#ecfdf5'}; display: flex; align-items: center; gap: 15px;`}>
+          <div style="font-size: 28px;">🏢</div>
+          <div>
+            <h4 style="font-size: 15px; margin: 0; color: var(--primary); font-weight: bold;">
+              Recharge Collective & Droit à la Prise — {commune.nom}
+            </h4>
+            <p style="font-size: 13.5px; margin: 4px 0 0; color: var(--text-muted);">
+              Décret n° 2020-1720 : le propriétaire ou locataire de son emplacement de stationnement en résidence peut installer un point de recharge à ses frais. Le syndic ne peut s'y opposer sans motif légitime.
+            </p>
+          </div>
+        </div>
+
+        <p class="lead" style="font-size: 17px; font-weight: 700; color: var(--primary); line-height: 1.6; margin-bottom: 25px;">
+          {content.introParagraph}
+        </p>
+
+        <h2>🛡️ Les étapes pour installer votre borne en copropriété</h2>
+        <p>
+          L'installation d'une borne de recharge dans un parking collectif à <strong>{commune.nom}</strong> suit une procédure légale encadrée. Que vous soyez dans une résidence neuve ou un immeuble ancien des Chartrons, voici les étapes à suivre :
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 15px; margin: 25px 0;">
+          <div style="background: var(--bg); padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); display: flex; gap: 15px;">
+            <span style="font-family: var(--font-heading); font-size: 22px; font-weight: bold; color: var(--accent);">1.</span>
+            <div>
+              <h4 style="font-size: 15px; color: var(--primary); font-weight: bold; margin-bottom: 4px;">Demande de devis & Étude technique</h4>
+              <p style="font-size: 13.5px; margin: 0; color: var(--text-muted);">Un technicien certifié IRVE effectue une visite technique pour concevoir un projet de raccordement (via le TGBT des parties communes ou une colonne horizontale Enedis).</p>
+            </div>
+          </div>
+          <div style="background: var(--bg); padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); display: flex; gap: 15px;">
+            <span style="font-family: var(--font-heading); font-size: 22px; font-weight: bold; color: var(--accent);">2.</span>
+            <div>
+              <h4 style="font-size: 15px; color: var(--primary); font-weight: bold; margin-bottom: 4px;">Notification du syndic</h4>
+              <p style="font-size: 13.5px; margin: 0; color: var(--text-muted);">Vous envoyez le projet technique par lettre recommandée avec accusé de réception au syndic. Le syndic dispose de 3 mois pour inscrire ce point à l'ordre du jour de la prochaine Assemblée Générale (AG).</p>
+            </div>
+          </div>
+          <div style="background: var(--bg); padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); display: flex; gap: 15px;">
+            <span style="font-family: var(--font-heading); font-size: 22px; font-weight: bold; color: var(--accent);">3.</span>
+            <div>
+              <h4 style="font-size: 15px; color: var(--primary); font-weight: bold; margin-bottom: 4px;">Validation en Assemblée Générale (AG)</h4>
+              <p style="font-size: 13.5px; margin: 0; color: var(--text-muted);">Le projet est présenté pour information en AG (aucun vote d'opposition n'est possible sauf si la copropriété décide de réaliser des travaux collectifs de pré-équipement sous 3 mois).</p>
+            </div>
+          </div>
+        </div>
+
+        <h2>💰 Financement & Subvention ADVENIR Copropriété 2026</h2>
+        <p>{content.ecoText}</p>
+        <p>
+          En copropriété à {commune.nom}, la prime ADVENIR est particulièrement avantageuse : elle finance <strong>50% des frais d'achat et de pose</strong> de la borne, avec un plafond de <strong>960 € TTC</strong> par point de recharge pour un usage individuel. Le crédit d'impôt de <strong>500 €</strong> s'y ajoute pour les résidents, ramenant le reste à charge moyen autour de 1 200 € à 1 800 € TTC selon les longueurs de raccordement.
+        </p>
+
+        <!-- Technical Tips -->
+        <h2>⚡ Le conseil d'expert électricien IRVE</h2>
+        <div style="background: #fffbeb; border-left: 4px solid var(--accent); padding: 18px 24px; margin: 25px 0; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
+          <p style="font-style: italic; font-weight: 500; margin: 0; color: var(--text);">
+            "{content.expertTip}"
+          </p>
+        </div>
+
+        <p>{content.useCaseText}</p>
+        <p>{content.communeDataInsight}</p>
+        <p>{content.distanceLyonContext}</p>
+
+        <!-- Données locales uniques -->
+        <h2>🏠 Valorisation immobilière en copropriété à {commune.nom}</h2>
+        <p>{content.marcheImmobilierInsight}</p>
+        <p>{content.realEstateInsight}</p>
+
+        <h2>📊 Mobilité électrique et copropriétés sur votre territoire</h2>
+        <p>{content.densiteAnalysis}</p>
+        <p>{content.populationTierContent}</p>
+
+        <h2>📊 Quel budget pour une borne en copropriété à {commune.nom} ?</h2>
+        <p>{content.tableIntro}</p>
+
+        <div class="table-scroll-wrapper" style="margin: 25px 0;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Infrastructure</th>
+                <th>Type de Raccordement</th>
+                <th>Subventions 2026 estimées</th>
+                <th>Tarif moyen posé</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Borne individuelle sur TGBT</strong></td>
+                <td>Raccordé au compteur des parties communes (avec sous-compteur MID)</td>
+                <td>960€ ADVENIR + 500€ Crédit Impôt + TVA 5,5%</td>
+                <td class="price">{prices.copro.min}€ – {prices.copro.max}€</td>
+              </tr>
+              <tr>
+                <td><strong>Borne individuelle sur Enedis</strong></td>
+                <td>Nouveau compteur Linky individuel (colonne collective)</td>
+                <td>50% ADVENIR + 500€ Crédit Impôt + TVA 5,5%</td>
+                <td class="price">{prices.copro.min + 300}€ – {prices.copro.max + 500}€</td>
+              </tr>
+              <tr>
+                <td><strong>Prise renforcée Green'Up</strong></td>
+                <td>Raccordé au TGBT avec sous-compteur</td>
+                <td>TVA 5,5% uniquement (hors ADVENIR individuel)</td>
+                <td class="price">{prices.greenUp.min + 150}€ – {prices.greenUp.max + 200}€</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size: 12.5px; color: var(--text-muted); font-style: italic;">
+          * {content.sourcesCitation}. En copropriété, les travaux nécessitent obligatoirement la pose d'un sous-compteur de facturation homologué MID pour le remboursement des consommations au syndic.
+        </p>
+
+        <!-- Local Map -->
+        <h2>📍 Intervention et carte de {commune.nom}</h2>
+        <p>Nos installateurs IRVE girondins gèrent les dossiers de A à Z (y compris le montage des dossiers ADVENIR auprès du syndic) dans toute la commune de <strong>{commune.nom}</strong> :</p>
+        <CityMap cityName={commune.nom} zip={commune.codePostal} />
+
+        <!-- FAQ Accordion -->
+        <h2 style="margin-top: 40px;">❓ Questions Fréquentes — Borne en Copropriété</h2>
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
+          {content.faqItems.map(faq => (
+            <details class="faq-details">
+              <summary>
+                {faq.question}
+              </summary>
+              <div class="faq-answer">
+                <p>{faq.answer}</p>
+              </div>
+            </details>
+          ))}
+        </div>
+
+        <!-- Cross-Template Internal Links (même commune) -->
+        <div style="margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--border-color);">
+          <h4 style="font-size: 15px; color: var(--primary); margin-bottom: 15px; font-weight: bold;">📌 Toutes nos prestations à {commune.nom} :</h4>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px;">
+            <a href={`/installateur-borne-recharge-${commune.slug}/`} style="font-size: 13px; background: var(--bg); border: 1px solid var(--border-color); padding: 8px 14px; border-radius: 4px; color: var(--primary); font-weight: bold;">
+              🔌 Installateur IRVE {commune.nom}
+            </a>
+            <a href={`/borne-recharge-copropriete-${commune.slug}/`} style="font-size: 13px; background: var(--primary); color: white; padding: 8px 14px; border-radius: 4px; font-weight: bold;" aria-current="page">
+              🏢 Copropriété {commune.nom}
+            </a>
+            <a href={`/wallbox-${commune.slug}/`} style="font-size: 13px; background: var(--bg); border: 1px solid var(--border-color); padding: 8px 14px; border-radius: 4px; color: var(--primary); font-weight: bold;">
+              ⚡ Wallbox {commune.nom}
+            </a>
+          </div>
+
+          <h4 style="font-size: 15px; color: var(--primary); margin-bottom: 12px; font-weight: bold;">🗺️ Bornes en copropriété dans les communes proches :</h4>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;">
+            {nearby.map(c => (
+              <a href={`/borne-recharge-copropriete-${c.slug}/`} style="font-size: 12.5px; background: var(--bg); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 4px; color: var(--primary); font-weight: bold;">
+                {c.nom} ({c.codePostal})
+              </a>
+            ))}
+          </div>
+
+          <details style="margin-top: 10px;">
+            <summary style="cursor: pointer; font-size: 13px; font-weight: 700; color: var(--accent);">
+              Voir aussi : Installateur IRVE & Wallbox dans les villes proches →
+            </summary>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">
+              {nearby.map(c => (
+                <a href={`/installateur-borne-recharge-${c.slug}/`} style="font-size: 11.5px; background: #eff6ff; border: 1px solid #dbeafe; padding: 4px 8px; border-radius: 3px; color: #1e40af;">
+                  🔌 IRVE {c.nom}
+                </a>
+              ))}
+              {nearby.map(c => (
+                <a href={`/wallbox-${c.slug}/`} style="font-size: 11.5px; background: #fffbeb; border: 1px solid #fef3c7; padding: 4px 8px; border-radius: 3px; color: #9a3412;">
+                  ⚡ Wallbox {c.nom}
+                </a>
+              ))}
+            </div>
+          </details>
+        </div>
+
+      </div>
+
+      <!-- Sidebar Column -->
+      <div class="static-sidebar">
+        <!-- CTA widget -->
+        <div class="sidebar-widget bg-purple-gradient">
+          <h3 style="font-family: var(--font-heading); font-size: 18px; margin-bottom: 12px;">🏢 Étude Copropriété</h3>
+          <p>
+            Vous souhaitez présenter un projet technique d'installation de borne individuelle lors de la prochaine AG de votre copropriété à {commune.nom} ?
+          </p>
+          <a href="#devis" class="sidebar-cta-gold">
+            Demander un devis &rarr;
+          </a>
+        </div>
+
+        <!-- Local Agency info widget -->
+        <div class="sidebar-widget">
+          <h3>🏢 Accompagnement local</h3>
+          <p>
+            Pour valider vos dossiers de subventions locales ou obtenir un avis technique neutre sur l'isolation ou la transition énergétique de votre logement à {commune.nom}, contactez :
+          </p>
+          <p style="font-weight: 700; color: var(--primary); font-size: 14px; margin-bottom: 5px;">
+            {content.localAgencyName}
+          </p>
+          <p style="font-size: 12.5px; line-height: 1.4; margin-bottom: 15px;">
+            Organisme public de conseil en éco-habitat et transition écologique en Gironde.
+          </p>
+          <a href={`https://www.${getLocalAgencyInfo(commune.codePostal, commune.slug).website}`} target="_blank" rel="noopener noreferrer" style="font-size: 13px; font-weight: 700; color: var(--accent); text-decoration: underline;">
+            Visiter leur site officiel &rarr;
+          </a>
+        </div>
+
+        <!-- Guides Showcase widget -->
+        <div class="sidebar-widget">
+          <h3>📚 Guides utiles</h3>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            {content.guideLinks.map(guide => (
+              <a href={guide.href} style="display: block; text-decoration: none; color: inherit;">
+                <h4 style="font-size: 14px; color: var(--primary); margin: 0 0 4px 0; font-weight: bold; text-decoration: underline;">{guide.label}</h4>
+                <p style="font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.4;">{guide.desc}</p>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

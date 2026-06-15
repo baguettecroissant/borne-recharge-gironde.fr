@@ -1,0 +1,147 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import SchemaMarkup from '../components/SchemaMarkup.astro';
+import config from '../data/config.json';
+
+const title = `ZFE Bordeaux Métropole 2026 : Calendrier Crit'Air & Borne de Recharge`;
+const description = `Comprendre la ZFE de Bordeaux Métropole : calendrier Crit'Air, interdictions de circuler et intérêt d'équiper son logement d'une borne de recharge.`;
+
+const breadcrumbItems = [
+  { label: "Accueil", href: "/" },
+  { label: "ZFE Bordeaux & Bornes" }
+];
+---
+
+<Layout title={title} description={description}>
+  <SchemaMarkup 
+    slot="head" 
+    pageUrl={Astro.url.href}
+    pageTitle={title}
+    pageDescription={description}
+    breadcrumbItems={breadcrumbItems}
+  />
+
+  <Breadcrumb items={breadcrumbItems} />
+
+  <section class="static-page-section" style="padding: 50px 0 80px; background-color: var(--bg);">
+    <div class="container">
+      <div class="two-column-layout">
+        
+        <!-- Main Content -->
+        <div class="static-main-content rich-text" style="background: var(--card-bg); padding: 40px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+          <h1 style="font-family: var(--font-heading); font-size: 32px; font-weight: 700; color: var(--primary); margin-bottom: 20px;">ZFE Bordeaux Métropole : Impact Crit'Air &amp; Recharge à Domicile</h1>
+          
+          <p>
+            La Zone à Faibles Émissions (ZFE) de Bordeaux Métropole s'applique sur un territoire dense comprenant les communes de l'agglomération bordelaise (Bordeaux, Mérignac, Pessac, Talence, Bègles, Gradignan, Cenon, Lormont, Floirac, Eysines, Bruges, Le Bouscat, etc.). En 2026, la réglementation encadre progressivement la circulation des véhicules les plus polluants (Crit'Air 4 et 5, puis Crit'Air 3), accélérant la nécessité de passer au véhicule hybride ou 100% électrique.
+          </p>
+
+          <blockquote style="border-left: 4px solid var(--accent); background: var(--primary-light); padding: 15px 20px; margin: 25px 0; border-radius: var(--radius-sm); color: var(--primary);">
+            <strong>💡 Le saviez-vous ?</strong> Les résidents de la métropole bordelaise qui passent au véhicule électrique (VE) bénéficient d'une liberté totale de circulation dans la ZFE. Cependant, dépendre du réseau public de recharge peut devenir contraignant et onéreux sans point de charge privé.
+          </blockquote>
+
+          <h2>Le Calendrier indicatif de la ZFE Bordeaux Métropole</h2>
+          <p>
+            Pour circuler librement au sein du périmètre ZFE de Bordeaux Métropole, votre véhicule doit arborer une vignette Crit'Air valide. Voici les étapes de restriction :
+          </p>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Vignette Crit'Air</th>
+                <th>Type de véhicule concerné</th>
+                <th>Statut ZFE Bordeaux (2026)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Crit'Air 5 &amp; Non classés</strong></td>
+                <td>Diesels immatriculés avant 2001, etc.</td>
+                <td style="color: #ef4444; font-weight: bold;">Interdit permanent</td>
+              </tr>
+              <tr>
+                <td><strong>Crit'Air 4</strong></td>
+                <td>Diesels immatriculés entre 2001 et 2005</td>
+                <td style="color: #ef4444; font-weight: bold;">Interdit permanent</td>
+              </tr>
+              <tr>
+                <td><strong>Crit'Air 3</strong></td>
+                <td>Diesels (2006-2010) et Essences (1997-2005)</td>
+                <td style="color: #f59e0b; font-weight: bold;">Restrictions progressives</td>
+              </tr>
+              <tr>
+                <td><strong>Crit'Air 2</strong></td>
+                <td>Tous les moteurs Diesel depuis 2011 et Essence (2006-2010)</td>
+                <td style="color: #10b981; font-weight: bold;">Autorisé sans restriction</td>
+              </tr>
+              <tr>
+                <td><strong>Crit'Air 1 &amp; Vert (Électrique)</strong></td>
+                <td>Véhicules Essence récents, Hybrides et 100% Électriques</td>
+                <td style="color: #10b981; font-weight: bold;">Autorisé sans restriction</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>Pourquoi la Borne à Domicile est la Meilleure Réponse à la ZFE</h2>
+          <p>
+            Le passage à l'électrique est la solution pérenne pour circuler librement dans l'agglomération bordelaise. Cependant, dépendre uniquement du réseau de bornes publiques présente des limites majeures :
+          </p>
+          <ul style="margin-left: 20px; margin-bottom: 25px; display: flex; flex-direction: column; gap: 10px;">
+            <li><strong>Disponibilité :</strong> Les bornes publiques de Bordeaux Métropole sont souvent occupées aux heures de pointe.</li>
+            <li><strong>Coût :</strong> Recharger en ville revient en moyenne 3 à 4 fois plus cher que de charger à la maison pendant les heures creuses d'Enedis.</li>
+            <li><strong>Temps :</strong> Passer 2 heures dans son véhicule garé sur une borne publique pour récupérer de l'autonomie est une contrainte évitable.</li>
+          </ul>
+          <p>
+            Avec une <strong>Wallbox 7 kW ou une prise renforcée Green'Up</strong> installée dans votre garage, votre allée ou votre place de parking souterrain, vous rechargez sereinement la nuit au tarif régulé, pour un coût estimé à seulement <strong>2,10 € pour 100 km</strong>.
+          </p>
+
+          <h2>Aides locales pour la transition écologique en Gironde</h2>
+          <p>
+            Bordeaux Métropole et le département de la Gironde accompagnent cette transition par le biais d'aides ou de dérogations pour les résidents de la ZFE. De plus, le programme ADVENIR permet de financer à hauteur de 50% (jusqu'à 960 € TTC) la pose de votre borne individuelle si vous résidez en appartement ou copropriété.
+          </p>
+          <p>
+            Nos électriciens qualifiés IRVE basés à Bordeaux et ses alentours étudient l'éligibilité technique de votre tableau électrique pour vous proposer un équipement adapté avec délestage dynamique Linky afin de protéger votre réseau domestique.
+          </p>
+
+          <div style="background: var(--primary-light); border: 1.5px solid var(--border-color); padding: 25px; border-radius: var(--radius-md); margin-top: 40px;">
+            <h3 style="margin-top: 0; color: var(--primary); font-size: 17px; font-weight: 700; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; margin-bottom: 15px;">🔗 Articles connexes utiles</h3>
+            <ul style="list-style: none; padding-left: 0; display: flex; flex-direction: column; gap: 12px; font-size: 14px; margin-bottom: 0;">
+              <li>💰 <a href="/aides-advenir/" style="color: var(--secondary); font-weight: 700;">Subventions ADVENIR et crédit d'impôt 2026</a></li>
+              <li>⚡ <a href="/guides/wallbox-panneaux-solaires-gironde/" style="color: var(--secondary); font-weight: 700;">Solaire + Wallbox : rentabilité en Gironde</a></li>
+              <li>🏢 <a href="/guides/copropriete-bordeaux-infrastructure-irve/" style="color: var(--secondary); font-weight: 700;">Le Droit à la Prise en copropriété à Bordeaux</a></li>
+              <li>🛠️ <a href="/guide-installation/" style="color: var(--secondary); font-weight: 700;">Normes électriques NFC 15-100 et installation de borne</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="static-sidebar">
+          <div class="sidebar-widget bg-purple-gradient">
+            <h3>🧮 Obtenez 3 Devis IRVE</h3>
+            <p>Notre réseau d'électriciens girondins qualifiés IRVE vous propose une étude technique gratuite de votre installation électrique.</p>
+            <a href="/devis/" class="sidebar-cta-gold">Demander mes devis gratuits →</a>
+          </div>
+
+          <div class="sidebar-widget">
+            <h3>🏙️ Communes ZFE concernées</h3>
+            <p style="font-size: 13px;">La ZFE de Bordeaux Métropole concerne Bordeaux ainsi que l'ensemble des communes de la métropole (Mérignac, Pessac, Talence, Bègles, etc.). Assurez-vous d'être en conformité Crit'Air.</p>
+          </div>
+
+          <div class="sidebar-widget">
+            <h3>🔋 Gain Économique</h3>
+            <p style="font-size: 13px;">Recharger sa voiture à domicile en Gironde permet de réaliser plus de <strong>1 300 € d'économies annuelles</strong> en carburant par rapport à un véhicule essence.</p>
+            <a href="/tarifs/" style="color: var(--secondary); font-weight: 700; font-size: 13px;">Consulter notre grille tarifaire →</a>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  @media (max-width: 992px) {
+    .two-column-layout {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>
